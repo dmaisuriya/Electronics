@@ -49,28 +49,25 @@ uint16_t readADC(void)
 }
 
 void initGraph() {
-  int graphDrawEndY = 50;
-  int graphDrawEndX = 100;
+  int graphEndY = 50;
+  int graphEndX = 100;
 
-  int graphDrawStartX = 20;
-  int graphDrawStartY = 10;
+  int graphStartX = 20;
+  int graphStartY = 10;
 
-  int incrementY = 5;
-  int stepY = (graphDrawEndY-graphDrawStartY)/incrementY;
+  int increment = 5;
+  int step = (graphEndY-graphStartY)/increment;
 
-  int incrementX = 5;
-  int stepX = (graphDrawEndX-graphDrawStartX)/incrementX;
+  u8g2.drawVLine(graphStartX,graphStartY,graphEndY-graphStartY);
+  u8g2.drawHLine(graphStartX,graphEndY,(graphEndX-graphStartX)+1);
 
-  u8g2.drawVLine(graphDrawStartX,graphDrawStartY,graphDrawEndY-graphDrawStartY);
-  u8g2.drawHLine(graphDrawStartX,graphDrawEndY,graphDrawEndX-graphDrawStartX);
-
-  for (int i = graphDrawStartY; i <= graphDrawEndY; i += stepY) {
-    u8g2.drawLine(graphDrawStartX-1, i, graphDrawStartX-3, i);
+  for (int i = graphStartY; i <= graphEndY; i += step) {
+    u8g2.drawLine(graphStartX-1, i, graphStartX-3, i);
   }
 
   // fix this
-  for (int i = graphDrawStartX; i <= graphDrawEndX; i += stepX) {
-    u8g2.drawLine(i, graphDrawEndY-1, i, graphDrawEndY-3);
+  for (int i = graphStartX; i <= graphEndX; i += step) {
+    u8g2.drawLine(i, graphEndY+1, i, graphEndY+3);
   }
 
 }

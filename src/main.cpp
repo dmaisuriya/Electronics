@@ -17,21 +17,6 @@ const double ADC_CONV = 3.3/4096;
 
 U8G2_SH1106_128X64_NONAME_F_4W_SW_SPI u8g2(U8G2_R0, CLK_PIN, SDA_PIN, CS_PIN, DC_PIN, RES_PIN);
 
-
-void setup(void) {
-  Serial.begin(115200);
-  
-  pinMode(DOUT_PIN, INPUT);
-  pinMode(CS2_PIN, OUTPUT);
-  pinMode(CLK2_PIN, OUTPUT);
-
-  digitalWrite(CS2_PIN, HIGH);
-  digitalWrite(CLK2_PIN, LOW);
-
-  u8g2.begin();
-
-}
-
 uint16_t readADC(void)
 {
   uint16_t value = 0;
@@ -63,14 +48,57 @@ uint16_t readADC(void)
   return value;
 }
 
+void initGraph() {
+  int graphDrawEndY = 50;
+  int graphDrawEndX = 100;
+
+  int graphDrawStartX = 20;
+  int graphDrawStartY = 10;
+
+  int incrementY = 5;
+  int stepY = (graphDrawEndY-graphDrawStartY)/incrementY;
+
+  int incrementX = 5;
+  int stepX = (graphDrawEndX-graphDrawStartX)/incrementX;
+
+  u8g2.drawVLine(graphDrawStartX,graphDrawStartY,graphDrawEndY-graphDrawStartY);
+  u8g2.drawHLine(graphDrawStartX,graphDrawEndY,graphDrawEndX-graphDrawStartX);
+
+  for (int i = graphDrawStartY; i <= graphDrawEndY; i += stepY) {
+    u8g2.drawLine(graphDrawStartX-1, i, graphDrawStartX-3, i);
+  }
+
+  // fix this
+  for (int i = graphDrawStartX; i <= graphDrawEndX; i += stepX) {
+    u8g2.drawLine(i, graphDrawEndY-1, i, graphDrawEndY-3);
+  }
+
+}
+
+void setup(void) {
+  Serial.begin(115200);
+  
+  pinMode(DOUT_PIN, INPUT);
+  pinMode(CS2_PIN, OUTPUT);
+  pinMode(CLK2_PIN, OUTPUT);
+
+  digitalWrite(CS2_PIN, HIGH);
+  digitalWrite(CLK2_PIN, LOW);
+
+  u8g2.begin();
+
+}
+
+
 void loop(void) { 
   uint16_t value = readADC();
 
   u8g2.clearBuffer();
-  u8g2.setFont(u8g2_font_ncenB14_tr);
-  u8g2.setCursor(0,16);
-  u8g2.print(ADC_CONV*value);
-  u8g2.print("V");
+  initGraph();
+  //u8g2.setFont(u8g2_font_ncenB14_tr);
+  //u8g2.setCursor(32,32);
+  //u8g2.print(ADC_CONV*value);
+  //u8g2.print("V");
   u8g2.sendBuffer();
 
 }

@@ -17,7 +17,7 @@ const double ADC_CONV = 3.3/4096;
 
 U8G2_SH1106_128X64_NONAME_F_4W_SW_SPI u8g2(U8G2_R0, CLK_PIN, SDA_PIN, CS_PIN, DC_PIN, RES_PIN);
 
-uint16_t readADC(void)
+uint16_t ReadADC(void)
 {
   uint16_t value = 0;
 
@@ -48,27 +48,55 @@ uint16_t readADC(void)
   return value;
 }
 
-void initGraph() {
-  int graphEndY = 50;
-  int graphEndX = 100;
-
+struct graphPlots {
   int graphStartX = 20;
   int graphStartY = 10;
 
-  int increment = 5;
-  int step = (graphEndY-graphStartY)/increment;
+  int graphEndX = 100;
+  int graphEndY = 50;
 
-  u8g2.drawVLine(graphStartX,graphStartY,graphEndY-graphStartY);
-  u8g2.drawHLine(graphStartX,graphEndY,(graphEndX-graphStartX)+1);
+  int lengthX;
+  int lengthY;
+};
+
+void InitGraph(graphPlots &initPlot) {
+  int &graphStartX = initPlot.graphStartX;
+  int &graphStartY = initPlot.graphStartY;
+  int &graphEndX = initPlot.graphEndX;
+  int &graphEndY = initPlot.graphEndY;
+
+  initPlot.lengthX = graphEndX-graphStartX;
+  initPlot.lengthY = graphEndY-graphStartY;
+
+  int increment = 5;
+  int step = initPlot.lengthY/increment;
+
+  u8g2.drawVLine(graphStartX,graphStartY,initPlot.lengthY);
+  u8g2.drawHLine(graphStartX+1,graphEndY,initPlot.lengthX);
 
   for (int i = graphStartY; i <= graphEndY; i += step) {
     u8g2.drawLine(graphStartX-1, i, graphStartX-3, i);
   }
 
-  // fix this
   for (int i = graphStartX; i <= graphEndX; i += step) {
     u8g2.drawLine(i, graphEndY+1, i, graphEndY+3);
   }
+
+}
+
+int MapADCtoGraph(graphPlots &initPlot) {
+  int &graphStartX = initPlot.graphStartX;
+  int &graphStartY = initPlot.graphStartY;
+  int &graphEndX = initPlot.graphEndX;
+  int &graphEndY = initPlot.graphEndY;
+  int &lengthX = initPlot.lengthX;
+  int &lengthY = initPlot.lengthY;
+
+  uint16_t value = ReadADC();
+
+  int mapY = map(value, 0, 4095, graphEndY, graphStartY);
+
+  return mapY;
 
 }
 
@@ -88,10 +116,12 @@ void setup(void) {
 
 
 void loop(void) { 
-  uint16_t value = readADC();
+  graphPlots initPlot;
 
   u8g2.clearBuffer();
-  initGraph();
+  InitGraph(initPlot);
+  int value = MapADCtoGraph(initPlot);
+  
   //u8g2.setFont(u8g2_font_ncenB14_tr);
   //u8g2.setCursor(32,32);
   //u8g2.print(ADC_CONV*value);

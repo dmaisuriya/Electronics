@@ -114,8 +114,13 @@ ADC MapADCtoGraph(graphPlots &initPlot) {
   return adcReading;
 }
 
+// declaring the array to have a history of the ADC values, and stores one sample per pixel (80 pixels total which is length of x-axis)
+uint16_t dataBuffer[80];
+
 void setup(void) {
   Serial.begin(115200);
+
+  graphPlots plotValues;
 
   // setting pin modes for the ADC's SPI pins
   pinMode(DOUT_PIN, INPUT);
@@ -126,13 +131,15 @@ void setup(void) {
   digitalWrite(CS2_PIN, HIGH);
   digitalWrite(CLK2_PIN, LOW);
 
+  // initialise all values to be initially at the bottom of the graph
+  for (int i = 0; i < 80; i++) {
+    dataBuffer[i] = plotValues.graphEndY;
+  }
+
   // start up the display
   u8g2.begin();
 
 }
-
-// initialising the array to have a history of the ADC values, and stores one sample per pixel (80 pixels total which is length of x-axis)
-uint16_t dataBuffer[80] = {0};
 
 void loop(void) { 
   // initialise the graph plotting values

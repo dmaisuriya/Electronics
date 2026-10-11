@@ -142,11 +142,11 @@ void loop(void) {
   ADC adcReading = MapADCtoGraph(initPlot);
 
   // loop through the array of ADC values and shift everything to the right by 1
-  for (int i = 1; i < initPlot.lengthX; i++) {
-    dataBuffer[i-1] = dataBuffer[i];
+  for (int i = initPlot.lengthX - 1; i >= 0; i--) {
+    dataBuffer[i] = dataBuffer[i-1];
   }
-  // replace the last value of the array with the most current reading
-  dataBuffer[initPlot.lengthX - 1] = adcReading.mappedValue; 
+  // replace the first value of the array with the most current reading and now the graph scrolls from left-right
+  dataBuffer[0] = adcReading.mappedValue;
 
   // clears the screen
   u8g2.clearBuffer();

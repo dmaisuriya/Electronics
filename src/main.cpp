@@ -13,12 +13,27 @@ const int CS2_PIN = 27;
 const int DOUT_PIN = 13;
 const int CLK2_PIN = 14;
 
-const double ADC_CONV = 3.3/4096;
+const double ADC_CONV = 5.0/4096;
 
 U8G2_SH1106_128X64_NONAME_F_4W_SW_SPI u8g2(U8G2_R0, CLK_PIN, SDA_PIN, CS_PIN, DC_PIN, RES_PIN);
 
-uint16_t ReadADC(void)
-{
+struct graphPlots {
+  int graphStartX = 30;
+  int graphStartY = 10;
+
+  int graphEndX = 110;
+  int graphEndY = 50;
+
+  int lengthX;
+  int lengthY;
+};
+
+struct ADC {
+  uint16_t valueADC;
+  int mappedValue;
+};
+
+uint16_t ReadADC(void) {
   uint16_t value = 0;
 
   digitalWrite(CS2_PIN, LOW);
@@ -48,56 +63,32 @@ uint16_t ReadADC(void)
   return value;
 }
 
-struct graphPlots {
-  int graphStartX = 20;
-  int graphStartY = 10;
-
-  int graphEndX = 100;
-  int graphEndY = 50;
-
-  int lengthX;
-  int lengthY;
-};
-
 void InitGraph(graphPlots &initPlot) {
-  int &graphStartX = initPlot.graphStartX;
-  int &graphStartY = initPlot.graphStartY;
-  int &graphEndX = initPlot.graphEndX;
-  int &graphEndY = initPlot.graphEndY;
-
-  initPlot.lengthX = graphEndX-graphStartX;
-  initPlot.lengthY = graphEndY-graphStartY;
+  initPlot.lengthX = initPlot.graphEndX-initPlot.graphStartX;
+  initPlot.lengthY = initPlot.graphEndY-initPlot.graphStartY;
 
   int increment = 5;
   int step = initPlot.lengthY/increment;
 
-  u8g2.drawVLine(graphStartX,graphStartY,initPlot.lengthY);
-  u8g2.drawHLine(graphStartX+1,graphEndY,initPlot.lengthX);
+  u8g2.drawVLine(initPlot.graphStartX,initPlot.graphStartY,initPlot.lengthY);
+  u8g2.drawHLine(initPlot.graphStartX+1,initPlot.graphEndY,initPlot.lengthX);
 
-  for (int i = graphStartY; i <= graphEndY; i += step) {
-    u8g2.drawLine(graphStartX-1, i, graphStartX-3, i);
+  for (int i = initPlot.graphStartY; i <= initPlot.graphEndY; i += step) {
+    u8g2.drawLine(initPlot.graphStartX-1, i, initPlot.graphStartX-3, i);
   }
 
-  for (int i = graphStartX; i <= graphEndX; i += step) {
-    u8g2.drawLine(i, graphEndY+1, i, graphEndY+3);
+  for (int i = initPlot.graphStartX; i <= initPlot.graphEndX; i += step) {
+    u8g2.drawLine(i, initPlot.graphEndY+1, i, initPlot.graphEndY+3);
   }
-
 }
 
-int MapADCtoGraph(graphPlots &initPlot) {
-  int &graphStartX = initPlot.graphStartX;
-  int &graphStartY = initPlot.graphStartY;
-  int &graphEndX = initPlot.graphEndX;
-  int &graphEndY = initPlot.graphEndY;
-  int &lengthX = initPlot.lengthX;
-  int &lengthY = initPlot.lengthY;
-
+ADC MapADCtoGraph(graphPlots &initPlot) {
   uint16_t value = ReadADC();
+  int mapY = map(value, 0, 4095, initPlot.graphEndY, initPlot.graphStartY);
 
-  int mapY = map(value, 0, 4095, graphEndY, graphStartY);
+  ADC adcReading = {value, mapY};
 
-  return mapY;
-
+  return adcReading;
 }
 
 void setup(void) {
@@ -114,18 +105,31 @@ void setup(void) {
 
 }
 
+uint16_t dataBuffer[80] = {0};
 
 void loop(void) { 
   graphPlots initPlot;
 
+  ADC adcReading = MapADCtoGraph(initPlot);
+
+  for (int i = 1; i < initPlot.lengthX; i++) {
+    dataBuffer[i-1] = dataBuffer[i];
+  }
+  dataBuffer[initPlot.lengthX - 1] = adcReading.mappedValue; 
+
   u8g2.clearBuffer();
   InitGraph(initPlot);
-  int value = MapADCtoGraph(initPlot);
-  
-  //u8g2.setFont(u8g2_font_ncenB14_tr);
-  //u8g2.setCursor(32,32);
-  //u8g2.print(ADC_CONV*value);
-  //u8g2.print("V");
+
+  for (int i = 0; i < initPlot.lengthX-1; i++) {
+    u8g2.drawLine(i + initPlot.graphStartX, dataBuffer[i], i + initPlot.graphStartX + 1, dataBuffer[i+1]);
+  } 
+
+  u8g2.setFont(u8g2_font_04b_03_tr);
+  u8g2.setCursor(initPlot.graphStartX - 25, adcReading.mappedValue);
+
+  u8g2.print(ADC_CONV*adcReading.valueADC);
+  u8g2.print("V");
+
   u8g2.sendBuffer();
 
 }

@@ -16,7 +16,8 @@ const int DOUT_PIN = 13;
 const int CLK2_PIN = 14;
 
 // arithmetic to convert the ADC's 12 bit reading into the voltage
-const double ADC_CONV = 5.0/4096;
+const double V_REF = 5.0;
+const double ADC_CONV = V_REF/4096;
 
 // initialising constructor to use the u8g2 lib for the SPI display
 U8G2_SH1106_128X64_NONAME_F_4W_SW_SPI u8g2(U8G2_R0, CLK_PIN, SDA_PIN, CS_PIN, DC_PIN, RES_PIN);
@@ -24,10 +25,10 @@ U8G2_SH1106_128X64_NONAME_F_4W_SW_SPI u8g2(U8G2_R0, CLK_PIN, SDA_PIN, CS_PIN, DC
 // custom data type to store all the significant graph drawing coordinates
 struct graphPlots {
   int graphStartX = 30;
-  int graphStartY = 10;
+  int graphStartY = 5;
 
   int graphEndX = 110;
-  int graphEndY = 50;
+  int graphEndY = 45;
 
   int lengthX;
   int lengthY;
@@ -82,22 +83,41 @@ void InitGraph(graphPlots &initPlot) {
   initPlot.lengthY = initPlot.graphEndY-initPlot.graphStartY;
 
   // calculating step size for scale on each axis
-  int increment = 5;
-  int step = initPlot.lengthY/increment;
+  int incrementY = 5;
+  int incrementX = 8;
+  int stepY = initPlot.lengthY/incrementY;
+  int stepX = initPlot.lengthX/incrementX;
 
   // drawing the x and y axis lines
   u8g2.drawVLine(initPlot.graphStartX,initPlot.graphStartY,initPlot.lengthY);
   u8g2.drawHLine(initPlot.graphStartX+1,initPlot.graphEndY,initPlot.lengthX);
 
+  int counterY = -1;
+
   // drawing the incremented scale lines on the y axis
-  for (int i = initPlot.graphStartY; i <= initPlot.graphEndY; i += step) {
+  for (int i = initPlot.graphStartY; i <= initPlot.graphEndY; i += stepY) {
     u8g2.drawLine(initPlot.graphStartX-1, i, initPlot.graphStartX-3, i);
+    for (int j = initPlot.graphStartX; j <= initPlot.graphEndX; j++) {
+      if (j % 2 == 0) {
+        u8g2.drawPixel(j, i);
+      }
+    }
+    counterY++;
   }
 
   // drawing the incremented scale lines on the x axis
-  for (int i = initPlot.graphStartX; i <= initPlot.graphEndX; i += step) {
+  for (int i = initPlot.graphStartX; i <= initPlot.graphEndX; i += stepX) {
     u8g2.drawLine(i, initPlot.graphEndY+1, i, initPlot.graphEndY+3);
+    for (int j = initPlot.graphEndY; j >= initPlot.graphStartY; j--) {
+      if (j % 2 == 0) {
+        u8g2.drawPixel(i, j);
+      }
+    }
   }
+
+  u8g2.setCursor(initPlot.graphStartX, initPlot.graphEndY + 15);
+  u8g2.printf("%.2fV/div   %ds/div", V_REF/counterY, 10);
+
 }
 
 // function to get the ADC reading and mapped value
@@ -138,6 +158,7 @@ void setup(void) {
 
   // start up the display
   u8g2.begin();
+  u8g2.setFont(u8g2_font_04b_03_tr);
 
 }
 
@@ -163,10 +184,9 @@ void loop(void) {
   // go through all 80 pixels on the x-axis and connect adjacent points together to display a proper line graph
   for (int i = 0; i < initPlot.lengthX-1; i++) {
     u8g2.drawLine(i + initPlot.graphStartX, dataBuffer[i], i + initPlot.graphStartX + 1, dataBuffer[i+1]);
-  } 
+  }
 
   // setting the font and location to write the voltage value on the y-axis
-  u8g2.setFont(u8g2_font_04b_03_tr);
   u8g2.setCursor(initPlot.graphStartX - 25, adcReading.mappedValue);
 
   // print the actual voltage value

@@ -53,7 +53,7 @@ void InitGraph(graphPlots &initPlot) {
     counterX++;
   }
 
-  u8g2.setCursor(initPlot.graphStartX, initPlot.graphEndY + 15);
-  u8g2.printf("%.2fV/div   %.2fs/div", voltageVars::V_REF/counterY, (0.044*initPlot.lengthX)/counterX);
+  u8g2.setCursor(initPlot.graphStartX - 5, initPlot.graphEndY + 15);
+  u8g2.printf("%.2fV/div (On Y-Axis)", voltageVars::V_REF/counterY);
 
 }

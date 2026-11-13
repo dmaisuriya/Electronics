@@ -1,19 +1,10 @@
-#include "ADCReading.h"
-#include "GraphVars.h"
+#include "ADC/ADC.h"
 
 // function to get the ADC reading and mapped value
-ADC MapADCtoGraph(graphPlots &initPlot) {
+void ADC::MapADCtoGraph(int graphEndY, int graphStartY) {
   // caling the function to get the 12-bit ADC reading
-  //unsigned long t1 = micros();
-  uint16_t value = ReadADC();
-  //unsigned long t2 = micros();
+  valueADC = ADC::ReadADC();
 
   // mapping this value in the correct proportion of the length of the y axis
-  int mapY = map(value, 0, 4095, initPlot.graphEndY, initPlot.graphStartY);
-
-  // store the variables here in the adcReading data type
-  ADC adcReading = {value, mapY};
-
-  // return both the 12-bit value and mapped value
-  return adcReading;
+  mappedValue = map(valueADC, 0, 4095, graphEndY, graphStartY);
 }

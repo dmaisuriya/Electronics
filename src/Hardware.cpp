@@ -11,6 +11,7 @@ void Hardware::PinSetup() {
 
     pinMode(MENU_PIN, INPUT_PULLUP);
     pinMode(MENU_SCROLL_PIN, INPUT);
+    pinMode(VSCALE_PIN, INPUT);
 
     // initialising SPI's clock and CS pins
     digitalWrite(CS2_PIN, HIGH);

@@ -3,7 +3,7 @@
 #include <Arduino.h>
 #include <U8g2lib.h>
 
-class Graph {
+class VoltageGraph {
 public:
     int graphStartX = 45;
     int graphStartY = 5;
@@ -37,12 +37,9 @@ public:
     );
 
     U8G2_SH1106_128X64_NONAME_F_4W_SW_SPI u8g2;
-    Graph();
+    VoltageGraph();
 
     void InitArray();
-
     void DrawGraph();
-
     void DisplayStats(const int& mappedValue, const uint16_t& valueADC);
-
 };

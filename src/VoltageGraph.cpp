@@ -2,11 +2,12 @@
 #include <cmath>
 
 #include "Hardware/Hardware.h"
-#include "Display/Graph.h"
+#include "Display/VoltageGraph.h"
+#include "Display/Menu.h"
 #include "ADC/ADC.h"
 
 
-Graph::Graph()
+VoltageGraph::VoltageGraph()
   : u8g2 (
     U8G2_R0, 
     Hardware::CLK_PIN, 
@@ -18,7 +19,7 @@ Graph::Graph()
 {}
 
 // function to initialise an empty graph on the display
-void Graph::InitGraph(int graphStartX, int graphStartY, int graphEndX, int graphEndY, int lengthX, int lengthY) {
+void VoltageGraph::InitGraph(int graphStartX, int graphStartY, int graphEndX, int graphEndY, int lengthX, int lengthY) {
   counterY = -1;
   counterX = -1;
 
@@ -55,7 +56,7 @@ void Graph::InitGraph(int graphStartX, int graphStartY, int graphEndX, int graph
   }
 }
 
-void Graph::InitArray() {
+void VoltageGraph::InitArray() {
   // initialise all values to be initially at the bottom of the graph
   for (int i = 0; i < 80; i++) {
     dataBufferPixel[i] = graphEndY;
@@ -63,14 +64,14 @@ void Graph::InitArray() {
   }
 }
 
-void Graph::DrawGraph() {
+void VoltageGraph::DrawGraph() {
   // go through all 80 pixels on the x-axis and connect adjacent points together to display a proper line graph
   for (int i = 0; i < lengthX-1; i++) {
     u8g2.drawLine(i + graphStartX, dataBufferPixel[i], i + graphStartX + 1, dataBufferPixel[i+1]);
   }
 }
 
-void Graph::DisplayStats(const int& mappedValue, const uint16_t& valueADC) {
+void VoltageGraph::DisplayStats(const int& mappedValue, const uint16_t& valueADC) {
 
   maxVoltage = dataBufferVoltage[0];
   minVoltage = dataBufferVoltage[0];

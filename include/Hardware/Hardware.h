@@ -17,6 +17,7 @@ public:
     // other pins
     static constexpr int MENU_PIN = 26;
     static constexpr int MENU_SCROLL_PIN = 25;
+    static constexpr int VSCALE_PIN = 33;
 
     void PinSetup();
 };

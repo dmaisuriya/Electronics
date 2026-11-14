@@ -1,4 +1,4 @@
-# MILESTONE 02: The Voltmeter & Graph
+# MILESTONE 03: The Voltmeter & Graph
 
 <body>
 <img width="400" height="600" alt="milestone3pic2" src="https://github.com/user-attachments/assets/66884a5f-2890-43f0-9866-86659f0f76db" /><br>

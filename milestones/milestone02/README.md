@@ -25,6 +25,4 @@ proved to be useful.
 The biggest challenge here would have been trying to figure out how to create a scrolling graph so that the graph could constantly update within the x and y axis 
 boundaries. Once I had an idea it took several iterations of debugging until I got it to work.
 
-**Future Improvements And/Or Implementations:** <br>  
-
 </body>

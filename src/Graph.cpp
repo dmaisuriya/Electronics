@@ -114,5 +114,5 @@ void Graph::DisplayStats(const int& mappedValue, const uint16_t& valueADC) {
   u8g2.printf("RMS: %.2fV", sqrt(squareTotalVoltage/80)*ADC_CONV);
 
   u8g2.setCursor(graphStartX - 45, graphStartY + 50);
-  u8g2.printf("VOLT: %.2fV", dataBufferVoltage[0]*ADC_CONV);  
+  u8g2.printf("VOLT: %.2fV", dataBufferVoltage[0]*ADC_CONV);
 }

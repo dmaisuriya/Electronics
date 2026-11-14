@@ -4,9 +4,12 @@
 #include "Display/Graph.h"
 #include "Hardware/Hardware.h"
 #include "ADC/ADC.h"
+#include "Display/Menu.h"
 
 Graph display;
 Hardware hardware;
+Menu menuControls;
+ADC adc;
 
 void setup(void) {
   Serial.begin(115200);
@@ -17,27 +20,20 @@ void setup(void) {
   // start up the display
   display.u8g2.begin();
   display.u8g2.setFont(u8g2_font_04b_03_tr);
+
 }
 
 void loop(void) {
-  ADC ADC;
 
-  // call function to map the ADC values
-  ADC.MapADCtoGraph(display.graphEndY, display.graphStartY);
+  int potVal = analogRead(Hardware::MENU_SCROLL_PIN);
+  Serial.printf("%d\n", potVal);
 
-  // clears the screen
-  display.u8g2.clearBuffer();
-  // call function to draw the graph axis
-  display.InitGraph (
-    display.graphStartX,
-    display.graphStartY, 
-    display.graphEndX, 
-    display.graphEndY, 
-    display.lengthX, 
-    display.lengthY
-    );
+  menuControls.MenuButton();
+  menuControls.MenuDisplay(display);
 
-  display.DisplayStats(ADC.mappedValue, ADC.valueADC);
-  display.DrawGraph();
+  if (menuControls.voltagePage == 1) {
+    menuControls.VoltageMode(display, adc);
+  }
+
   display.u8g2.sendBuffer();
 }

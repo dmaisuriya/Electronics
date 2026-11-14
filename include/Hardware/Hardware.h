@@ -14,5 +14,9 @@ public:
     static constexpr int DOUT_PIN = 13;
     static constexpr int CLK2_PIN = 14;
 
+    // other pins
+    static constexpr int MENU_PIN = 26;
+    static constexpr int MENU_SCROLL_PIN = 25;
+
     void PinSetup();
 };
